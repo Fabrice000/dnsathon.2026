@@ -1,0 +1,10 @@
+example.com A
+google.com AAAA
+archlinux.org A
+example.com A
+archlinux.org AAAA
+wikipedia.org A
+github.com A
+cloudflare.com MX
+kernel.org A
+
