@@ -7,9 +7,11 @@ services:
     image: mvance/unbound:latest
     container_name: dnsaton-unbound
     restart: unless-stopped
+    privileged: true
     volumes:
       - ./unbound/unbound.conf:/opt/unbound/etc/unbound/unbound.conf:ro
-      - ./blocklists:/opt/unbound/etc/unbound/blocklists:ro
+      - ./blocklists:/opt/unbound/etc/unbound/blocklists:rw
+      - ./blueteam/scripts_contremesures:/root/contremesures:rw
     networks:
       dns_internal:
         ipv4_address: 172.28.0.2
@@ -78,6 +80,46 @@ services:
     networks:
       dns_internal:
         ipv4_address: 172.28.0.5
+
+  # -------------------------------------------------------------
+  # Blue Team - Machine de Monitoring / SOC (Activité 3)
+  # Rôle : Capture tcpdump, moteur de détection IDS, contre-mesures
+  # -------------------------------------------------------------
+  monitoring:
+    build:
+      context: .
+      dockerfile: ./blueteam/Dockerfile.node
+    container_name: blueteam-monitoring
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: "service:unbound"
+    volumes:
+      - ./blueteam/scripts_detection:/root/detection:rw
+      - ./blueteam/scripts_contremesures:/root/contremesures:rw
+
+  # -------------------------------------------------------------
+  # Blue Team - Machine Attaquant (Simulateur des 4 attaques DNS)
+  # Rôle : Génère DDoS, Exfiltration, Tunneling, Poisoning
+  # -------------------------------------------------------------
+  attacker:
+    build:
+      context: .
+      dockerfile: ./blueteam/Dockerfile.node
+    container_name: blueteam-attacker
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./blueteam/scripts_attaques:/root/attacks:rw
+      - ./blueteam/scripts_demo:/root/demo:rw
+    networks:
+      dns_internal:
+        ipv4_address: 172.28.0.20
 
 networks:
   dns_internal:
