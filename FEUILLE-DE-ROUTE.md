@@ -22,12 +22,19 @@ Supervision : **Prometheus** + **Grafana** (`http://localhost:3000`).
 
 ## 2. Objectifs notés
 
-| # | Objectif | Question à vous poser |
+Le prototype a **déjà** quelques protections de base — à vous de les **vérifier et prouver**,
+puis de **combler ce qui manque**. Chaque objectif doit être démontré (test avant/après).
+
+| # | Objectif | À vérifier / corriger |
 | :-- | :-- | :-- |
-| 1 | **Réponses légitimes** | N'importe qui sur le réseau peut-il obtenir une réponse ? Qui *devrait* pouvoir ? |
-| 2 | **DNSSEC** | Un domaine à signature **invalide** est-il bien rejeté, ou passe-t-il quand même ? |
-| 3 | **Rate limiting** | Que se passe-t-il si une IP envoie des milliers de requêtes par seconde ? |
-| 4 | **Journaux d'abus** | Après une attaque simulée, retrouvez-vous la trace du coupable dans les logs ? |
+| 1 | **Réponses légitimes (ACL)** | ⚠️ Le résolveur répond-il à **tout le monde** ? → à restreindre aux clients autorisés. |
+| 2 | **DNSSEC** | ✅ présent — à **prouver** : une signature invalide doit donner `SERVFAIL`. |
+| 3 | **Rate limiting** | ✅ présent (DNSdist) — à **prouver** sous charge et à ajuster si besoin. |
+| 4 | **Journaux d'abus** | ⚠️ Après une attaque simulée, retrouve-t-on le coupable dans les logs ? → à activer. |
+
+> En résumé : **2 trous à combler** (ACL ouverte, journalisation absente) + **1 point sensible**
+> (console de métriques exposée **sans mot de passe**, secret écrit en dur). Les protections
+> DNSSEC et anti-DDoS, elles, sont déjà en place : votre travail est de le **démontrer**.
 
 ## 3. Zones à auditer
 
