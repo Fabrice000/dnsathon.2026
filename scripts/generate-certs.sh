@@ -12,7 +12,10 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/CN=dnsaton.local/O=Hackathon DNS Resolver/C=FR" \
   -addext "subjectAltName=DNS:localhost,DNS:dnsaton.local,IP:127.0.0.1"
 
-chmod 600 "${CERTS_DIR}/server.key"
+# L'image powerdns/dnsdist-19 exécute dnsdist avec l'utilisateur pdns (UID/GID 953).
+# La clé doit donc être lisible par ce GID via le volume bind-monté.
+chown "$(id -u):953" "${CERTS_DIR}/server.key"
+chmod 640 "${CERTS_DIR}/server.key"
 chmod 644 "${CERTS_DIR}/server.crt"
 
 echo "=== [2/3] Génération de la clé API pour la console web et les métriques DNSdist ==="

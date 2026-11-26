@@ -8,3 +8,5 @@ certs/*.env
 package-lock.json
 node_modules/
 *.log
+
+id_rsa_vps_dnsathon*
